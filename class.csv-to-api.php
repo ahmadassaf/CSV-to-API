@@ -34,8 +34,7 @@ class CSV_To_API {
     $this->callback = isset( $query['callback'] ) ? $this->jsonp_callback_filter( $query['callback'] ) : false;
     $this->sort = isset( $query['sort'] ) ? $query['sort'] : null;
     $this->sort_dir = isset( $query['sort_dir'] ) ? $query['sort_dir'] : "desc";
-    $this->header_row = isset( $query['header_row'] ) ? $query['header_row'] : "y";
-	
+
     return get_object_vars( $this );
 
   }
@@ -57,7 +56,6 @@ class CSV_To_API {
     // Attempt to retrieve the data from cache
     $key = 'csv_to_api_' . md5( $this->source );
     $this->data = $this->get_cache( $key );
-
     if ( !$this->data ) {
 
       // Retrieve the requested source material via HTTP GET.
@@ -67,6 +65,7 @@ class CSV_To_API {
       else {
         $this->data = $this->curl_get( $this->source );
       }
+
 
       if ( !$this->data ) {
         header( '502 Bad Gateway' );
@@ -176,22 +175,8 @@ class CSV_To_API {
 
     $lines = explode( "\n", $csv );
     $lines = $this->parse_lines( $lines );
-    
-	// If no header row exists, automatically create field names.
-	if ($this->header_row == 'n') {
-	
-		for ($i=0; $i<count($lines[0]); $i++)
-		{
-			$headers[$i] = 'field-' . ($i+1);
-		}
-		
-	}
-	
-	// If a header row exists, use that as the headers.
-	else {
-	    $headers = array_shift( $lines );
-	}
-    
+
+    $headers = array_shift( $lines );
     $data = array();
     foreach ( $lines as $line ) {
 
